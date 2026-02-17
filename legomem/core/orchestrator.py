@@ -16,8 +16,9 @@ class AgentState(TypedDict):
     final_answer: str | None
 
 class Orchestrator:
-    def __init__(self, model: str = "gpt-4o"):
+    def __init__(self, model: str = "gpt-4o", worker_model: str = None):
         self.llm = ChatOpenAI(model=model, temperature=0)
+        self.worker_llm = ChatOpenAI(model=worker_model or model, temperature=0)
 
     def plan(self, state: AgentState) -> dict[str, Any]:
         """Generate or refine a high-level plan based on memories."""
@@ -52,7 +53,7 @@ class Orchestrator:
         """Delegate the current subtask to a task agent."""
         subtask = state["plan"][state["current_step"]]
         prompt = f"Execute this subtask: {subtask}\nContext: {state['task_description']}"
-        response = self.llm.invoke([HumanMessage(content=prompt)])
+        response = self.worker_llm.invoke([HumanMessage(content=prompt)])
         return {
             "messages": [HumanMessage(content=f"Subtask Outcome: {response.content}")],
             "current_step": state["current_step"] + 1

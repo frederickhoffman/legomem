@@ -69,11 +69,22 @@ class EvaluationPipeline:
         
         if strategy == "Vanilla":
             memories = self.retriever.retrieve_vanilla(task['description'], k=k)
+        elif strategy == "QueryRewrite":
+            # 1. Retrieve similar tasks context
+            similar_tasks = self.retriever.retrieve_vanilla(task['description'], k=3)
+            # 2. Rewrite query into subtasks
+            subtasks = self.retriever.rewrite_query(task['description'], similar_tasks)
+            # 3. Retrieve dynamic memories for subtasks
+            dynamic_memories = []
+            for st in subtasks:
+                dynamic_memories.extend(self.retriever.retrieve_dynamic(st, k=1))
+            memories = similar_tasks + dynamic_memories
         else:
             memories = self.retriever.retrieve_vanilla(task['description'], k=k)
             
         # Setup State
-        orchestrator = Orchestrator(model=model)
+        worker_model = config.get("worker_model")
+        orchestrator = Orchestrator(model=model, worker_model=worker_model)
         app = create_legomem_graph(orchestrator)
         
         inputs = {
