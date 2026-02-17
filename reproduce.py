@@ -19,28 +19,12 @@ def reproduce():
     print("\n--- Evaluating WITH LEGOMem ---")
     eval_pipeline = EvaluationPipeline(task_bank_path, subtask_bank_path)
     
-    test_tasks = [
-        {
-            "description": "What is Bob's specific internal ID mentioned in the LEGOMem Standard Protocol?",
-            "expected_output": "The internal ID for Bob is B-99."
-        },
-        {
-            "description": "What is the encrypted activation code for Protocol-X in Bob's calendar records?",
-            "expected_output": "The activation code for Protocol-X is 'X-777'."
-        },
-        {
-            "description": "Identify the primary expense auditor for the Q4 Travel Budget as per LEGOMem Finance Policy.",
-            "expected_output": "The primary expense auditor for Q4 travel is Sarah Jenkins."
-        },
-        {
-            "description": "What is the mandatory retention period for Project Icarus documentation according to the Compliance Protocol?",
-            "expected_output": "The mandatory retention period for Project Icarus is 7 years."
-        },
-        {
-            "description": "Who is the designated emergency contact for Server Room B in the LEGOMem Security Manual?",
-            "expected_output": "The emergency contact for Server Room B is Mike Miller."
-        }
-    ]
+    # Load tasks from datasets
+    from legomem.bench.datasets import OfficeBenchLoader
+    loader = OfficeBenchLoader()
+    test_tasks = loader.load_level(1)
+    
+    print(f"Loaded {len(test_tasks)} tasks for evaluation.")
     
     config = {
         "model": "gpt-4o",
@@ -50,12 +34,21 @@ def reproduce():
         "mode": "LEGOMem"
     }
     
-    success_rate_lego = eval_pipeline.run_eval(test_tasks, config)
-    print(f"LEGOMem Success Rate: {success_rate_lego * 100}%")
+    # Run evaluation manually to track split metrics
+    print(f"Running LEGOMem evaluation on {len(test_tasks)} tasks...")
+    lego_results = []
+    for task in test_tasks:
+        result = eval_pipeline.run_single_task(task, config)
+        is_success = eval_pipeline._verify_success(task, result, config["model"])
+        lego_results.append({
+            "id": task["id"],
+            "type": task.get("type", "unknown"),
+            "success": is_success
+        })
+        print(f"Task {task['id']} ({task.get('type')}): {'SUCCESS' if is_success else 'FAILURE'}")
 
     # 3. Run Evaluation (Baseline - No Memory)
     print("\n--- Evaluating WITHOUT Memory (Baseline) ---")
-    # Empty paths to simulate no memory
     eval_pipeline_baseline = EvaluationPipeline("data/empty", "data/empty")
     os.makedirs("data/empty", exist_ok=True)
     
@@ -67,13 +60,38 @@ def reproduce():
         "mode": "Baseline"
     }
     
-    success_rate_baseline = eval_pipeline_baseline.run_eval(test_tasks, config_baseline)
-    print(f"Baseline Success Rate: {success_rate_baseline * 100}%")
+    baseline_results = []
+    for task in test_tasks:
+        result = eval_pipeline_baseline.run_single_task(task, config_baseline)
+        is_success = eval_pipeline_baseline._verify_success(task, result, config_baseline["model"])
+        baseline_results.append({
+            "id": task["id"],
+            "type": task.get("type", "unknown"),
+            "success": is_success
+        })
+        print(f"Task {task['id']} ({task.get('type')}): {'SUCCESS' if is_success else 'FAILURE'}")
 
-    print("\n--- Summary ---")
-    print(f"Baseline: {success_rate_baseline * 100}%")
-    print(f"LEGOMem: {success_rate_lego * 100}%")
-    print(f"Improvement: {(success_rate_lego - success_rate_baseline) * 100}%")
+    # Calculate Metrics
+    def calc_metrics(results):
+        total = len(results)
+        procedural = [r for r in results if r["type"] == "procedural"]
+        general = [r for r in results if r["type"] == "general"]
+        
+        return {
+            "total": sum(r["success"] for r in results) / total * 100 if total else 0,
+            "procedural": sum(r["success"] for r in procedural) / len(procedural) * 100 if procedural else 0,
+            "general": sum(r["success"] for r in general) / len(general) * 100 if general else 0
+        }
+
+    lego_metrics = calc_metrics(lego_results)
+    baseline_metrics = calc_metrics(baseline_results)
+
+    print("\n--- Final Reproduction Results ---")
+    print(f"{'Metric':<20} | {'Baseline':<10} | {'LEGOMem':<10} | {'Delta':<10}")
+    print("-" * 60)
+    print(f"{'Overall Success':<20} | {baseline_metrics['total']:<10.1f}% | {lego_metrics['total']:<10.1f}% | {lego_metrics['total'] - baseline_metrics['total']:<+10.1f}%")
+    print(f"{'Procedural (Mem)':<20} | {baseline_metrics['procedural']:<10.1f}% | {lego_metrics['procedural']:<10.1f}% | {lego_metrics['procedural'] - baseline_metrics['procedural']:<+10.1f}%")
+    print(f"{'General (Reasoning)':<20} | {baseline_metrics['general']:<10.1f}% | {lego_metrics['general']:<10.1f}% | {lego_metrics['general'] - baseline_metrics['general']:<+10.1f}%")
 
 if __name__ == "__main__":
     reproduce()

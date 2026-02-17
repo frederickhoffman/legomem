@@ -59,32 +59,44 @@ class EvaluationPipeline:
         success_count = 0
         model = config.get("model", "gpt-4o")
         
+    def run_single_task(self, task: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]:
+        """Run a single task through the LEGOMem system."""
+        model = config.get("model", "gpt-4o")
+        
+        # Retrieval logic
+        strategy = config.get("retrieval_strategy", "Vanilla")
+        k = config.get("K", 5)
+        
+        if strategy == "Vanilla":
+            memories = self.retriever.retrieve_vanilla(task['description'], k=k)
+        else:
+            memories = self.retriever.retrieve_vanilla(task['description'], k=k)
+            
+        # Setup State
+        orchestrator = Orchestrator(model=model)
+        app = create_legomem_graph(orchestrator)
+        
+        inputs = {
+            "task_description": task['description'],
+            "memories": memories,
+            "messages": [],
+            "plan": [],
+            "current_step": 0,
+            "final_answer": None
+        }
+        
+        # Run Agent
+        return app.invoke(inputs)
+
+    def run_eval(self, tasks: list[dict[str, Any]], config: dict[str, Any]):
+        self.logger.start_run(config)
+        
+        success_count = 0
+        model = config.get("model", "gpt-4o")
+        
         for task in tasks:
             print(f"Running task: {task['description']}")
-            
-            # Retrieval logic for different strategies
-            strategy = config.get("retrieval_strategy", "Vanilla")
-            if strategy == "Vanilla":
-                memories = self.retriever.retrieve_vanilla(task['description'], k=config.get("K", 5))
-            else:
-                # Basic implementation of Dynamic for eval
-                memories = self.retriever.retrieve_vanilla(task['description'], k=config.get("K", 3))
-            
-            # Setup State
-            orchestrator = Orchestrator(model=model)
-            app = create_legomem_graph(orchestrator)
-            
-            inputs = {
-                "task_description": task['description'],
-                "memories": memories,
-                "messages": [],
-                "plan": [],
-                "current_step": 0,
-                "final_answer": None
-            }
-            
-            # Run Agent
-            result = app.invoke(inputs)
+            result = self.run_single_task(task, config)
             
             # Rigorous Success check
             is_success = self._verify_success(task, result, model)
