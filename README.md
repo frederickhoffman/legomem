@@ -1,4 +1,4 @@
-![LEGOMem Banner](banner.png)
+<img src="banner.png" width="100%" style="aspect-ratio: 16/7; object-fit: cover; border-radius: 8px;" alt="LEGOMem Banner">
 
 # 🧱 LEGOMem: Modular Procedural Memory for Multi-agent LLM Systems
 
