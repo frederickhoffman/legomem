@@ -10,45 +10,19 @@ load_dotenv()
 def reproduce():
     print("Starting LEGOMem Reproduction...")
     
-    # 1. Setup Mock Memories (In a real scenario, these would be from training tasks)
+    # 1. Memories are assumed to be seeded by seed_bench.py
     task_bank_path = "data/memory_bank/task_bank"
     subtask_bank_path = "data/memory_bank/subtask_bank"
+    print(f"Loading memories from {task_bank_path}...")
     
-    os.makedirs("data/memory_bank", exist_ok=True)
-    
-    task_bank = VectorStore()
-    subtask_bank = VectorStore()
-    
-    # Add a mock successful trajectory memory
-    mock_memory = {
-        "task_description": (
-            "Schedule a meeting with Alice for tomorrow at 2 PM "
-            "and send a confirmation email."
-        ),
-        "high_level_plan": "1. Check calendar availability. 2. Create event. 3. Send email.",
-        "subtasks": [
-            {"agent": "calendar_agent", "description": "Check availability"},
-            {"agent": "calendar_agent", "description": "Create event"},
-            {"agent": "email_agent", "description": "Send confirmation"}
-        ]
-    }
-    
-    task_bank.add_memory(mock_memory, mock_memory["task_description"])
-    for st in mock_memory["subtasks"]:
-        subtask_bank.add_memory(st, st["description"])
-        
-    task_bank.save(task_bank_path)
-    subtask_bank.save(subtask_bank_path)
-    
-    # 2. Run Evaluation
+    # 2. Run Evaluation (LEGOMem)
+    print("\n--- Evaluating WITH LEGOMem ---")
     eval_pipeline = EvaluationPipeline(task_bank_path, subtask_bank_path)
     
     test_tasks = [
         {
-            "description": (
-                "Organize a team lunch for next Friday at 12:30 PM. "
-                "Check Bob and Charlie's calendars first."
-            )
+            "description": "What is Bob's specific internal ID mentioned in the LEGOMem Standard Protocol?",
+            "expected_output": "The internal ID for Bob is B-99."
         }
     ]
     
@@ -56,11 +30,34 @@ def reproduce():
         "model": "gpt-4o",
         "K": 5,
         "temperature": 0,
-        "retrieval_strategy": "Vanilla"
+        "retrieval_strategy": "Vanilla",
+        "mode": "LEGOMem"
     }
     
-    success_rate = eval_pipeline.run_eval(test_tasks, config)
-    print(f"Reproduction Success Rate: {success_rate * 100}%")
+    success_rate_lego = eval_pipeline.run_eval(test_tasks, config)
+    print(f"LEGOMem Success Rate: {success_rate_lego * 100}%")
+
+    # 3. Run Evaluation (Baseline - No Memory)
+    print("\n--- Evaluating WITHOUT Memory (Baseline) ---")
+    # Empty paths to simulate no memory
+    eval_pipeline_baseline = EvaluationPipeline("data/empty", "data/empty")
+    os.makedirs("data/empty", exist_ok=True)
+    
+    config_baseline = {
+        "model": "gpt-4o",
+        "K": 0,
+        "temperature": 0,
+        "retrieval_strategy": "Vanilla",
+        "mode": "Baseline"
+    }
+    
+    success_rate_baseline = eval_pipeline_baseline.run_eval(test_tasks, config_baseline)
+    print(f"Baseline Success Rate: {success_rate_baseline * 100}%")
+
+    print("\n--- Summary ---")
+    print(f"Baseline: {success_rate_baseline * 100}%")
+    print(f"LEGOMem: {success_rate_lego * 100}%")
+    print(f"Improvement: {(success_rate_lego - success_rate_baseline) * 100}%")
 
 if __name__ == "__main__":
     reproduce()

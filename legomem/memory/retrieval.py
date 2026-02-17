@@ -32,9 +32,11 @@ class MemoryRetriever:
         self.subtask_bank = subtask_bank
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-    def retrieve_vanilla(self, task_description: str, k: int = 5) -> list[dict[str, Any]]:
+    def retrieve_vanilla(self, query: str, k: int = 5) -> list[dict[str, Any]]:
         """Retrieves full-task memories at inference time."""
-        return self.task_bank.search(task_description, k=k)
+        results = self.task_bank.search(query, k=k)
+        print(f"DEBUG: Retriever found {len(results)} task memories for query: {query}")
+        return results
 
     def retrieve_dynamic(self, subtask_description: str, k: int = 3) -> list[dict[str, Any]]:
         """Performs just-in-time, subtask-level retrieval."""

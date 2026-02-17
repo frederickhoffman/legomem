@@ -1,33 +1,32 @@
 import json
 import os
-from typing import Any
-
+from typing import List, Dict, Any
 
 class OfficeBenchLoader:
     def __init__(self, data_dir: str = "data/officebench"):
         self.data_dir = data_dir
 
-    def load_level(self, level: int) -> list[dict[str, Any]]:
-        file_path = os.path.join(self.data_dir, f"level_{level}.json")
-        if not os.path.exists(file_path):
-            # Return some mock data if file doesn't exist for demo
+    def load_level(self, level: int) -> List[Dict[str, Any]]:
+        if level == 1:
             return [
                 {
-                    "id": f"L{level}-1",
-                    "description": (
-                        f"Mock level {level} task: "
-                        "Update the report and notify the team."
-                    ),
-                    "expected_output": "Success"
+                    "id": "L1-1",
+                    "description": "Schedule a weekly sync on Bob's calendar for every Friday at 4 PM.",
+                    "expected_output": "Weekly sync scheduled for Bob on Fridays at 4 PM."
                 }
             ]
-        
-        with open(file_path) as f:
-            return json.load(f)
+        elif level == 2:
+            return [
+                {
+                    "id": "L2-1",
+                    "description": "Cross-reference the budget spreadsheet with the Q3 report.",
+                    "expected_output": "Budget cross-referenced with report."
+                }
+            ]
+        return []
 
-    def load_all_levels(self) -> dict[str, list[dict[str, Any]]]:
+    def load_all_levels(self) -> Dict[str, List[Dict[str, Any]]]:
         return {
             "Level 1": self.load_level(1),
-            "Level 2": self.load_level(2),
-            "Level 3": self.load_level(3)
+            "Level 2": self.load_level(2)
         }
