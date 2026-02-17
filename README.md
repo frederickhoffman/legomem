@@ -1,3 +1,5 @@
+![LEGOMem Banner](banner.png)
+
 # 🧱 LEGOMem: Modular Procedural Memory for Multi-agent LLM Systems
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
