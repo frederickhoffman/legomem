@@ -23,6 +23,22 @@ def reproduce():
         {
             "description": "What is Bob's specific internal ID mentioned in the LEGOMem Standard Protocol?",
             "expected_output": "The internal ID for Bob is B-99."
+        },
+        {
+            "description": "What is the encrypted activation code for Protocol-X in Bob's calendar records?",
+            "expected_output": "The activation code for Protocol-X is 'X-777'."
+        },
+        {
+            "description": "Identify the primary expense auditor for the Q4 Travel Budget as per LEGOMem Finance Policy.",
+            "expected_output": "The primary expense auditor for Q4 travel is Sarah Jenkins."
+        },
+        {
+            "description": "What is the mandatory retention period for Project Icarus documentation according to the Compliance Protocol?",
+            "expected_output": "The mandatory retention period for Project Icarus is 7 years."
+        },
+        {
+            "description": "Who is the designated emergency contact for Server Room B in the LEGOMem Security Manual?",
+            "expected_output": "The emergency contact for Server Room B is Mike Miller."
         }
     ]
     

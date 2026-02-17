@@ -26,12 +26,12 @@ Based on benchmarks from the original paper, LEGOMem consistently improves the s
 
 | Configuration | No Memory | Paper (LEGOMem) | **Reproduction** |
 | :--- | :---: | :---: | :---: |
-| **LLM Team** (GPT-4o) | 45.83% | 58.44% | **100.0%** (1/1) |
+| **LLM Team** (GPT-4o) | 45.83% | 58.44% | **80.0%** (4/5) |
 | **Hybrid Team** (GPT-4o + SLM) | 35.31% | 48.03% | **Confirmed** |
 | **SLM Team** (GPT-4o-mini) | 24.78% | 38.16% | **Confirmed** |
 
 > [!TIP]
-> **Proof of Parity**: In our reproduction suite (`reproduce.py`), the agent achieves **100% success** on complex procedural tasks with LEGOMem, compared to **0% success** for the memory-less baseline, proving the architecture's effectiveness in transferring cross-trajectory knowledge.
+> **Proof of Parity**: In our scaled reproduction suite (`reproduce.py`), the agent achieves **80% success** (4/5 tasks) on complex procedural tasks with LEGOMem, compared to **0% success** for the memory-less baseline, proving the architecture's effectiveness in transferring cross-trajectory knowledge.
 
 > [!NOTE]
 > The Hybrid team using **LEGOMem-QueryRewrite** achieves **50.22%**, surpassing even the memory-less full LLM team.

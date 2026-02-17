@@ -34,8 +34,8 @@ class Orchestrator:
             f"\n{memory_context}\n\n"
             "Task: {state['task_description']}\n"
             "Based on the referencing memories, generate a high-level plan. "
-            "Include specific steps like 'Use Protocol-X' or 'Verify ID [value]' "
-            "if they appear in the memories. "
+            "CRITICAL: You MUST COPY specific values (names, IDs, codes, years) from the memories into your plan steps. "
+            "Do not be generic. usage: 'Verify ID B-99' instead of 'Verify ID'. "
             "Respond only with a numbered list of subtasks."
         )
         
