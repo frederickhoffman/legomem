@@ -40,7 +40,7 @@ class EvaluationPipeline:
             }
             
             # Run Agent
-            result = app.invoke(inputs)
+            app.invoke(inputs)
             
             # Mock Success check
             is_success = True # In reality, check result against task['expected_output']

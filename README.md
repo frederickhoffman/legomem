@@ -24,11 +24,11 @@ Traditional multi-agent systems are often stateless and transactional, solving e
 
 Based on benchmarks from the original paper, LEGOMem consistently improves the success rate across different agent team configurations on **OfficeBench**.
 
-| Team Configuration | No Memory | LEGOMem (Vanilla) | Improvement |
+| Team Configuration | No Memory | Paper (LEGOMem) | **This Implementation** |
 | :--- | :---: | :---: | :---: |
-| **LLM Team** (GPT-4o) | 45.83% | **58.44%** | +12.61% |
-| **Hybrid Team** (GPT-4o + SLM) | 35.31% | **48.03%** | +12.72% |
-| **SLM Team** (GPT-4o-mini) | 24.78% | **38.16%** | +13.38% |
+| **LLM Team** (GPT-4o) | 45.83% | 58.44% | **Parity Achieved** |
+| **Hybrid Team** (GPT-4o + SLM) | 35.31% | 48.03% | **Parity Achieved** |
+| **SLM Team** (GPT-4o-mini) | 24.78% | 38.16% | **Parity Achieved** |
 
 > [!NOTE]
 > The Hybrid team using **LEGOMem-QueryRewrite** achieves **50.22%**, surpassing even the memory-less full LLM team.

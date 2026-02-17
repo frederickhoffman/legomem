@@ -8,13 +8,15 @@ from .vector_store import VectorStore
 
 load_dotenv()
 
-QUERY_REWRITE_PROMPT = """Based on the following similar task examples, break down the new task into a step-by-step plan.
+QUERY_REWRITE_PROMPT = """Based on the following similar task examples, 
+break down the new task into a step-by-step plan.
 ## Similar Task Examples: 
 {memory_context}
 ## New Task: 
 {task_description}
 
-Please provide a numbered list of 3-5 high-level steps that would be needed to complete this task. Focus on the main phases/subtasks, not detailed actions.
+Please provide a numbered list of 3-5 high-level steps that would be needed to complete this task.
+Focus on the main phases/subtasks, not detailed actions.
 Format your response as a simple numbered list enclosed within ¡start¿ and ¡end¿ tags:
 ¡start¿ 
 1. [First step] 
@@ -40,7 +42,11 @@ class MemoryRetriever:
             return []
         return self.subtask_bank.search(subtask_description, k=k)
 
-    def rewrite_query(self, task_description: str, similar_tasks: list[dict[str, Any]]) -> list[str]:
+    def rewrite_query(
+        self, 
+        task_description: str, 
+        similar_tasks: list[dict[str, Any]]
+    ) -> list[str]:
         """Uses an LLM to rewrite the task into subtasks before execution."""
         memory_context = "\n\n".join([
             f"Task: {m.get('task_description', 'N/A')}\nPlan: {m.get('high_level_plan', 'N/A')}"

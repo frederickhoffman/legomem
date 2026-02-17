@@ -33,7 +33,7 @@ class VectorStore:
         
         query_embedding = self._get_embedding(query)
         vector = np.array([query_embedding]).astype("float32")
-        distances, indices = self.index.search(vector, min(k, self.index.ntotal))
+        _, indices = self.index.search(vector, min(k, self.index.ntotal))
         
         results = []
         for idx in indices[0]:

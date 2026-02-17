@@ -13,26 +13,28 @@ class AgentState(TypedDict):
     current_step: int
     messages: Annotated[list[BaseMessage], lambda x, y: x + y]
     memories: list[dict[str, Any]]
-    final_answer: Optional[str]
+    final_answer: str | None
 
 class Orchestrator:
     def __init__(self, model: str = "gpt-4o"):
         self.llm = ChatOpenAI(model=model, temperature=0)
 
     def plan(self, state: AgentState) -> dict[str, Any]:
-        """Generate or refine a high-level plan."""
-        # In a real implementation, we'd use the memories here
+        """Generate or refine a high-level plan based on memories."""
+        memory_context = "\n".join([str(m) for m in state.get("memories", [])])
         prompt = f"""You are an orchestrator agent. Your task is to solve: {state['task_description']}
-        Retrieved memories: {state['memories']}
         
-        Based on these memories and the task, generate a high-level plan.
-        Return a list of subtasks.
+        Successful trajectories from similar past tasks:
+        {memory_context}
+        
+        Based on these experiences, generate a high-level plan as a numbered list of subtasks.
+        Focus only on the plan, one subtask per line.
         """
-        # Simplification for now
+        
         if not state.get("plan"):
-             # Mock plan generation
-             new_plan = ["Check calendar", "Send email"]
-             return {"plan": new_plan, "current_step": 0}
+             response = self.llm.invoke([HumanMessage(content=prompt)])
+             plan = [s.strip() for s in response.content.split("\n") if s.strip() and s[0].isdigit()]
+             return {"plan": plan, "current_step": 0}
         return {}
 
     def delegate(self, state: AgentState) -> dict[str, Any]:
@@ -41,9 +43,19 @@ class Orchestrator:
             return {"final_answer": "Task completed."}
         
         subtask = state["plan"][state["current_step"]]
-        # This would normally involve tool calling or agent invocation
-        # For now, we simulate an agent response
-        return {"messages": [HumanMessage(content=f"Subtask: {subtask}")], "current_step": state["current_step"] + 1}
+        
+        # In the LEGOMem framework, we'd select a specialized agent here.
+        # For simplicity in this implementation, we use a generic executor 
+        # that follows the subtask description.
+        prompt = f"""Execute this subtask: {subtask}
+        Context of the main task: {state['task_description']}
+        """
+        response = self.llm.invoke([HumanMessage(content=prompt)])
+        
+        return {
+            "messages": [HumanMessage(content=f"Subtask Outcome: {response.content}")],
+            "current_step": state["current_step"] + 1
+        }
 
 def create_legomem_graph(orchestrator: Orchestrator):
     workflow = StateGraph(AgentState)

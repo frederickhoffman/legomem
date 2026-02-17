@@ -21,7 +21,10 @@ def reproduce():
     
     # Add a mock successful trajectory memory
     mock_memory = {
-        "task_description": "Schedule a meeting with Alice for tomorrow at 2 PM and send a confirmation email.",
+        "task_description": (
+            "Schedule a meeting with Alice for tomorrow at 2 PM "
+            "and send a confirmation email."
+        ),
         "high_level_plan": "1. Check calendar availability. 2. Create event. 3. Send email.",
         "subtasks": [
             {"agent": "calendar_agent", "description": "Check availability"},
@@ -41,7 +44,12 @@ def reproduce():
     eval_pipeline = EvaluationPipeline(task_bank_path, subtask_bank_path)
     
     test_tasks = [
-        {"description": "Organize a team lunch for next Friday at 12:30 PM. Check Bob and Charlie's calendars first."}
+        {
+            "description": (
+                "Organize a team lunch for next Friday at 12:30 PM. "
+                "Check Bob and Charlie's calendars first."
+            )
+        }
     ]
     
     config = {

@@ -13,9 +13,9 @@ class WandBLogger:
         self.run = None
 
     def start_run(self, config: dict[str, Any], name: str | None = None):
-        WANDB_API_KEY = os.getenv("WANDB_API_KEY")
-        if WANDB_API_KEY:
-            wandb.login(key=WANDB_API_KEY)
+        wandb_api_key = os.getenv("WANDB_API_KEY")
+        if wandb_api_key:
+            wandb.login(key=wandb_api_key)
         
         self.run = wandb.init(
             project=self.project,

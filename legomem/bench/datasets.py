@@ -14,7 +14,10 @@ class OfficeBenchLoader:
             return [
                 {
                     "id": f"L{level}-1",
-                    "description": f"Mock level {level} task: Update the report and notify the team.",
+                    "description": (
+                        f"Mock level {level} task: "
+                        "Update the report and notify the team."
+                    ),
                     "expected_output": "Success"
                 }
             ]

@@ -7,7 +7,13 @@ from legomem.eval.evaluator import EvaluationPipeline
 
 load_dotenv()
 
-def run_benchmark(model: str = "gpt-4o", k: int = 5, strategies: list[str] = ["Vanilla"]):
+def run_benchmark(
+    model: str = "gpt-4o", 
+    k: int = 5, 
+    strategies: list[str] | None = None
+):
+    if strategies is None:
+        strategies = ["Vanilla"]
     loader = OfficeBenchLoader()
     eval_pipeline = EvaluationPipeline(
         "data/memory_bank/task_bank",
