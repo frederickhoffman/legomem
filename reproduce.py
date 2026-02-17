@@ -93,5 +93,40 @@ def reproduce():
     print(f"{'Procedural (Mem)':<20} | {baseline_metrics['procedural']:<10.1f}% | {lego_metrics['procedural']:<10.1f}% | {lego_metrics['procedural'] - baseline_metrics['procedural']:<+10.1f}%")
     print(f"{'General (Reasoning)':<20} | {baseline_metrics['general']:<10.1f}% | {lego_metrics['general']:<10.1f}% | {lego_metrics['general'] - baseline_metrics['general']:<+10.1f}%")
 
+    # 4. Run Evaluation (Hybrid Team - GPT-4o Planner + SLM Worker + QueryRewrite)
+    print("\n--- Evaluating Hybrid Team (GPT-4o + GPT-4o-mini + QueryRewrite) ---")
+    
+    config_hybrid = {
+        "model": "gpt-4o",
+        "worker_model": "gpt-4o-mini",
+        "K": 5,
+        "temperature": 0,
+        "retrieval_strategy": "QueryRewrite",
+        "mode": "Hybrid"
+    }
+    
+    hybrid_results = []
+    for task in test_tasks:
+        try:
+            result = eval_pipeline.run_single_task(task, config_hybrid)
+            is_success = eval_pipeline._verify_success(task, result, config_hybrid["model"])
+        except Exception as e:
+            print(f"Error running hybrid task {task['id']}: {e}")
+            is_success = False
+            
+        hybrid_results.append({
+            "id": task["id"],
+            "type": task.get("type", "unknown"),
+            "success": is_success
+        })
+        print(f"Task {task['id']} ({task.get('type')}): {'SUCCESS' if is_success else 'FAILURE'}")
+
+    hybrid_metrics = calc_metrics(hybrid_results)
+    
+    print("\n--- Final Hybrid Team Results ---")
+    print(f"Overall Success: {hybrid_metrics['total']:.1f}%")
+    print(f"Procedural (Mem): {hybrid_metrics['procedural']:.1f}%")
+    print(f"General (Reasoning): {hybrid_metrics['general']:.1f}%")
+
 if __name__ == "__main__":
     reproduce()
