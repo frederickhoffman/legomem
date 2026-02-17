@@ -1,0 +1,36 @@
+[project]
+name = "legomem"
+version = "0.1.0"
+description = "Implementation of LEGOMem: Modular Procedural Memory for Multi-agent LLM Systems"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "faiss-cpu>=1.13.2",
+    "langchain-openai>=1.1.9",
+    "langgraph>=1.0.8",
+    "mypy>=1.19.1",
+    "openai>=2.21.0",
+    "pre-commit>=4.5.1",
+    "python-dotenv>=1.2.1",
+    "ruff>=0.15.1",
+    "wandb>=0.25.0",
+    "pydantic>=2.12.5",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "C4", "SIM", "RUF"]
+ignore = []
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0.0",
+]

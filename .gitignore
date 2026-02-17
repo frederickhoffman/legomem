@@ -1,0 +1,11 @@
+.env
+data/
+memory_bank/
+__pycache__/
+*.pyc
+.venv/
+uv.lock
+wandb/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
